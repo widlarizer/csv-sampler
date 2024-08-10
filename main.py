@@ -8,7 +8,13 @@ def process_data(name, group, period):
         return datetime.fromisoformat(str)
     print(f"Processing group '{name}' with {len(group)} records.")
     period = timedelta(minutes=period)
+
+    # Round up
     start = time(group['timestamp'].iloc[0])
+    start += timedelta(microseconds=(1e6 - start.microsecond))
+    start += timedelta(seconds=(60 - start.second))
+    start += timedelta(minutes=((5 - start.minute) % 5))
+
     i = 0
     str = ""
 
