@@ -4,6 +4,9 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 def process_data(name, group, period, verbose):
+    def dbg_print(s):
+        if verbose:
+            print(s)
     def time(str):
         return datetime.fromisoformat(str)
     print(f"Processing group '{name}' with {len(group)} records.")
@@ -14,17 +17,16 @@ def process_data(name, group, period, verbose):
     start += timedelta(microseconds=(1e6 - start.microsecond))
     start += timedelta(seconds=(60 - start.second))
     start += timedelta(minutes=((5 - start.minute) % 5))
+    dbg_print(start)
 
     i = 0
     str = ""
 
-    def dbg_print(s):
-        if verbose:
-            print(s)
-
     while True:
+        while i < len(group) and time(group['timestamp'].iloc[i]) < start:
+            i += 1
         j = i
-        while j < len(group) and time(group['timestamp'].iloc[j]) - start < period:
+        while j < len(group) and time(group['timestamp'].iloc[j]) < start + period:
             j += 1
         window = range(i,j)
         # time_window_start = 
