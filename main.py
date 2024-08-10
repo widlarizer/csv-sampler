@@ -3,7 +3,7 @@ import argparse
 from datetime import datetime, timedelta
 from pathlib import Path
 
-def process_data(name, group, period):
+def process_data(name, group, period, verbose):
     def time(str):
         return datetime.fromisoformat(str)
     print(f"Processing group '{name}' with {len(group)} records.")
@@ -19,8 +19,8 @@ def process_data(name, group, period):
     str = ""
 
     def dbg_print(s):
-        pass
-        # print(s)
+        if verbose:
+            print(s)
 
     while True:
         j = i
@@ -68,7 +68,7 @@ def process_data(name, group, period):
 
     return str
 
-def main(input_files, output_dir, period):
+def main(input_files, output_dir, period, verbose):
     Path(output_dir).mkdir(exist_ok=True)
 
     for input_file in input_files:
@@ -77,7 +77,7 @@ def main(input_files, output_dir, period):
 
         # Apply the process_data function to each group
         for name, group in grouped:
-            s = process_data(name, group.iloc[:, 3:], period)
+            s = process_data(name, group.iloc[:, 3:], period, verbose)
             fixed_name = '-'.join(name).replace(" ", "_")
             out_file = Path(output_dir) / f"{Path(input_file).stem}_{fixed_name}.csv"
             out_file.write_text(s)
@@ -86,7 +86,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="TODO")
     parser.add_argument("input_files", nargs='+', help="List of input CSV files to process")
     parser.add_argument("-o", "--output_dir", required=True, help="Directory to save the processed files")
-    parser.add_argument("-p", "--period", required=True, help="Resampling/averaging period in minutes")
+    parser.add_argument("-p", "--period", type=int, required=True, help="Resampling/averaging period in minutes")
+    parser.add_argument("-v", "--verbose", action=argparse.BooleanOptionalAction)
     
     args = parser.parse_args()
-    main(args.input_files, args.output_dir, int(args.period))
+    main(args.input_files, args.output_dir, args.period, args.verbose)
