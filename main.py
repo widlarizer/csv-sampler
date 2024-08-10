@@ -48,7 +48,7 @@ def process_data(name, group, period):
             
             idx = window.stop - 1
             weight = (start + period) - time(group['timestamp'].iloc[idx])
-            val = group['value'].iloc[idx - 1]
+            val = group['value'].iloc[idx]
             acc += float(weight.total_seconds()) * val
             dbg_print(f"acc end {acc} contrib {weight}*{val}")
 
